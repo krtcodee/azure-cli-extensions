@@ -13,6 +13,10 @@ import json
 from azure.cli.core.aaz import AAZStrType
 from knack.log import get_logger
 
+from .aaz.latest.resiliency.drill import (
+    AddOrUpdateResource as _DrillAddOrUpdateResource,
+    ResyncReadinessCheck as _DrillResyncReadinessCheck,
+)
 from .aaz.latest.resiliency.recovery_plan import (
     Create as _RecoveryPlanCreate,
     List as _RecoveryPlanList,
@@ -30,6 +34,31 @@ from .aaz.latest.resiliency.recovery_plan import (
 
 
 logger = get_logger(__name__)
+
+
+class _DrillOperationIdQueryCompatibility:  # pylint: disable=too-few-public-methods
+    """Mirror the operation ID into the query for compatibility with the released Drill service."""
+
+    @property
+    def query_parameters(self):
+        parameters = super().query_parameters
+        parameters.update(self.serialize_query_param(
+            "operationId", self.ctx.args.operation_id, required=True))
+        return parameters
+
+
+class DrillResyncReadinessCheck(_DrillResyncReadinessCheck):
+    class DrillsResyncReadinessCheck(
+            _DrillOperationIdQueryCompatibility,
+            _DrillResyncReadinessCheck.DrillsResyncReadinessCheck):
+        pass
+
+
+class DrillAddOrUpdateResource(_DrillAddOrUpdateResource):
+    class DrillsAddOrUpdateResources(
+            _DrillOperationIdQueryCompatibility,
+            _DrillAddOrUpdateResource.DrillsAddOrUpdateResources):
+        pass
 
 
 # The 2026-10-01 spec marks RecoveryPlanProperties.planType create-only
