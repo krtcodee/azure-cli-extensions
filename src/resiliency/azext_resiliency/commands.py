@@ -13,11 +13,14 @@
 
 def load_command_table(self, _):  # pylint: disable=unused-argument
     from .custom import (
+        DrillAddOrUpdateResource, DrillResyncReadinessCheck,
         RecoveryPlanCreate, RecoveryPlanList, RecoveryPlanShow, RecoveryPlanUpdate,
         RecoveryPlanCheckReadiness, RecoveryPlanFailover, RecoveryPlanFailoverCommit, RecoveryPlanReprotect,
         RecoveryPlanTestFailover, RecoveryPlanTestFailoverCleanup,
         RecoveryPlanValidateForFailover, RecoveryPlanValidateForReprotect,
     )
+    self.command_table["resiliency drill add-or-update-resource"] = DrillAddOrUpdateResource(loader=self)
+    self.command_table["resiliency drill resync-readiness-check"] = DrillResyncReadinessCheck(loader=self)
     self.command_table["resiliency recovery-plan create"] = RecoveryPlanCreate(loader=self)
     self.command_table["resiliency recovery-plan list"] = RecoveryPlanList(loader=self)
     self.command_table["resiliency recovery-plan show"] = RecoveryPlanShow(loader=self)
